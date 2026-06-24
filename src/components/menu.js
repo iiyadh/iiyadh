@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Helmet } from 'react-helmet';
-import { Link } from 'gatsby';
+import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
 import { navLinks } from '@config';
 import { KEY_CODES } from '@utils';
@@ -258,9 +257,9 @@ const Menu = () => {
               <ol>
                 {navLinks.map(({ url, name }, i) => (
                   <li key={i}>
-                    <Link to={url} onClick={() => setMenuOpen(false)}>
+                    <a href={url} onClick={() => setMenuOpen(false)}>
                       {name}
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ol>

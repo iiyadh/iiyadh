@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useStaticQuery, graphql } from 'gatsby';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
 import { srConfig } from '@config';
 import sr from '@utils/sr';
 import { Icon } from '@components/icons';
 import { usePrefersReducedMotion } from '@hooks';
+import { getProjects } from '../../data';
 
 const StyledProjectsSection = styled.section`
   display: flex;
@@ -166,29 +166,7 @@ const StyledProject = styled.li`
 `;
 
 const Projects = () => {
-  const data = useStaticQuery(graphql`
-    query {
-      projects: allMarkdownRemark(
-        filter: {
-          fileAbsolutePath: { regex: "/content/projects/" }
-          frontmatter: { showInProjects: { ne: false } }
-        }
-        sort: { fields: [frontmatter___date], order: DESC }
-      ) {
-        edges {
-          node {
-            frontmatter {
-              title
-              tech
-              github
-              external
-            }
-            html
-          }
-        }
-      }
-    }
-  `);
+  const data = getProjects();
 
   const [showMore, setShowMore] = useState(false);
   const revealTitle = useRef(null);
@@ -207,12 +185,12 @@ const Projects = () => {
   }, []);
 
   const GRID_LIMIT = 6;
-  const projects = data.projects.edges.filter(({ node }) => node);
+  const projects = data;
   const firstSix = projects.slice(0, GRID_LIMIT);
   const projectsToShow = showMore ? projects : firstSix;
 
-  const projectInner = node => {
-    const { frontmatter, html } = node;
+  const projectInner = item => {
+    const { frontmatter, html } = item;
     const { github, external, title, tech } = frontmatter;
 
     return (
@@ -267,22 +245,22 @@ const Projects = () => {
     <StyledProjectsSection>
       <h2 ref={revealTitle}>Other Noteworthy Projects</h2>
 
-      <Link className="inline-link archive-link" to="/archive" ref={revealArchiveLink}>
+      <a className="inline-link archive-link" href="/archive" ref={revealArchiveLink}>
         view the archive
-      </Link>
+      </a>
 
       <ul className="projects-grid">
         {prefersReducedMotion ? (
           <>
             {projectsToShow &&
-              projectsToShow.map(({ node }, i) => (
-                <StyledProject key={i}>{projectInner(node)}</StyledProject>
+              projectsToShow.map((item, i) => (
+                <StyledProject key={i}>{projectInner(item)}</StyledProject>
               ))}
           </>
         ) : (
           <TransitionGroup component={null}>
             {projectsToShow &&
-              projectsToShow.map(({ node }, i) => (
+              projectsToShow.map((item, i) => (
                 <CSSTransition
                   key={i}
                   classNames="fadeup"
@@ -294,7 +272,7 @@ const Projects = () => {
                     style={{
                       transitionDelay: `${i >= GRID_LIMIT ? (i - GRID_LIMIT) * 100 : 0}ms`,
                     }}>
-                    {projectInner(node)}
+                    {projectInner(item)}
                   </StyledProject>
                 </CSSTransition>
               ))}
