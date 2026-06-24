@@ -1,0 +1,7 @@
+node_modules/
+public/
+.cache/
+.git/
+.gitignore
+*.md
+.DS_Store
